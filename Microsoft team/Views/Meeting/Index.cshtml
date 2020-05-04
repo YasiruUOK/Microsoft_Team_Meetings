@@ -1,0 +1,179 @@
+﻿@model Microsoft_team.Models.Meeting
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=utf-8 />
+    <script src="https://code.jquery.com/jquery-2.2.4.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var date = new Date();
+
+            var day = date.getDate(),
+                month = date.getMonth() + 1,
+                year = date.getFullYear(),
+                hour = date.getHours(),
+                min = date.getMinutes();
+
+            month = (month < 10 ? "0" : "") + month;
+            day = (day < 10 ? "0" : "") + day;
+            hour = (hour < 10 ? "0" : "") + hour;
+            min = (min < 10 ? "0" : "") + min;
+
+            var today = year + "-" + month + "-" + day,
+                displayTime = hour + ":" + min;
+
+            document.getElementById('start-date-input').value = today;
+            document.getElementById("currentTime").value = displayTime;
+
+
+
+
+
+            $('#btnSave').on("click", function () {
+                //$(this).prop('disabled', true);
+                //showLoadingDialog(true);
+
+                let formData = new FormData();
+                let meetingTitle = document.getElementById("meetingTitle").value; /*$('#meetingTitle').val();*/
+                var startDate = document.getElementById("start-date-input").value; /*$(".datepicker[name=start-date-input]").val();*/
+                var endDate = document.getElementById("end-date-input").value;
+                //let startDate = `${moment(datePickerControl.picker.get()).format('YYYY-MM-DD')} ${$('#start-date-input').data('startTime')}`;
+                //let endDate = `${moment(datePickerControl.picker.get()).format('YYYY-MM-DD')} ${$('#end-date-input').data('endTime')}`;
+
+
+                //if (meetingTitle === '') {
+                //    showMessageDialog("Meeting title is required.");
+                //    $('#meetingTitle').focus();
+                //    $(this).prop('disabled', false);
+                //    return;
+                //}
+
+                //if (attendees.length == 0) {
+                //    showMessageDialog("Attendee(s) is required.");
+                //    $(this).prop('disabled', false);
+                //    return;
+                //}
+
+                //if ($('#selectedSchedule').data('startTime') == null) {
+                //    showMessageDialog("Meeting date is required.");
+                //    $(this).prop('disabled', false);
+                //    return;
+                //}
+
+                formData.append("Subject", meetingTitle);
+                formData.append("Start", startDate);
+                formData.append("End", endDate);
+                //formData.append("AgendaJSONString", getAgendas());
+                //formData.append("AttendeesJSONString", JSON.stringify(attendees));
+                //formData.append("TeamId", teamId);
+                //formData.append("ChannelId", channelId);
+
+                //$('#files input').filter(function () { return $(this).val() !== ''; }).each(function () {
+                //    formData.append("Attachments", $(this)[0].files[0]);
+                //});
+                //TeamsHelper.get(function (teamContext) {
+                $.ajax({
+                    url: '/Meeting/CreateMeeting',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    type: 'POST',
+                    success: function () {
+                        //$('#btnSaveDone').click(function () {
+                        //    location.href = `/MeetingCapture/upcomingMeetings`;
+                        //});
+                        //showMessageDialog("Your meeting has been created.");
+                    },
+                    error: function (req, error) {
+                        //$(this).prop('disabled', false);
+                        //showMessageDialog(error);
+                    }
+                });
+                //});
+            });
+        });
+    </script>
+</head>
+<body>
+    @using (Html.BeginForm("Index", "Meeting", FormMethod.Post))
+    {
+        <div class="form-group">
+            @Html.LabelFor(model => model.Subject, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Subject, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Subject, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.StartDate, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.StartDate, new { htmlAttributes = new { @class = "form-control", @type = "date", @id = "start-date-input" } })
+                @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.StartTime, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.StartTime, new { htmlAttributes = new { @class = "form-control", @type = "time", @id = "currentTime" } })
+                @Html.ValidationMessageFor(model => model.StartTime, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.TimeDuration, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.TimeDuration, new List<SelectListItem>
+                       { new SelectListItem{Text="30 Minutes", Value="1"},
+                         new SelectListItem{Text="1 Hour", Value="2"},
+                         new SelectListItem{Text="1.5 Hours", Value="3"},
+                         new SelectListItem{Text="2 Hours", Value="4"}},
+                      "Please select")
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    }
+        <div>
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+
+
+        @*<div class="form-group">
+                <label for="example-date-input" class="col-2 col-form-label">Meeting Name</label>
+                <div class="col-10">
+                    <input class="form-control" type="text" id="meetingTitle" placeholder="Meeting Name">
+                </div>
+            </div>*@
+        @*<div class="form-group">
+                <label for="example-date-input" class="col-2 col-form-label">Start Date</label>
+                <div class="col-10">
+                    <input class="form-control" type="date" id="start-date-input" name="start-date-input">
+                </div>
+            </div>*@
+        @*<div class="form-group">
+                <label for="example-date-input" class="col-2 col-form-label">Start Time</label>
+                <div class="col-10">
+                    <input type="time" id="currentTime">
+                </div>
+            </div>*@
+        @*<div class="form-group">
+                <label for="exampleFormControlSelect1" class="col-2 col-form-label">Duration</label>
+                <div class="col-10">
+                    <select class="form-control" id="exampleFormControlSelect1">
+                        <option>30 Minutes</option>
+                        <option>1 Hour</option>
+                        <option>1.5 Hours</option>
+                        <option>2 Hours</option>
+                    </select>
+                </div>
+            </div>*@
+        @*<div class="form-group">
+                <button id="btnSave" class="ms-Button ms-Button--primary">
+                    <span class="ms-Button-label">Save </span>
+                </button>
+            </div>*@
+    </body>
+</html>
